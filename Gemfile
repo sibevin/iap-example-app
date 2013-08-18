@@ -15,6 +15,7 @@ gem 'puma'
 gem 'rolify'
 gem 'simple_form', '>= 3.0.0.rc'
 gem 'slim'
+gem 'bootstrap-sass', '~> 2.3.2.1'
 group :assets do
   gem 'therubyracer', :platform=>:ruby
 end
