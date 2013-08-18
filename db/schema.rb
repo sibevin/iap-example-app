@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130818005238) do
+ActiveRecord::Schema.define(version: 20130818053318) do
+
+  create_table "items", force: true do |t|
+    t.string "name"
+  end
 
   create_table "roles", force: true do |t|
     t.string   "name"
@@ -23,6 +27,28 @@ ActiveRecord::Schema.define(version: 20130818005238) do
 
   add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
   add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
+
+  create_table "skus", force: true do |t|
+    t.integer  "item_id",                    null: false
+    t.string   "name",                       null: false
+    t.string   "skucode",                    null: false
+    t.integer  "price",                      null: false
+    t.integer  "amount",     default: 1,     null: false
+    t.boolean  "onshelf",    default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "skus", ["item_id"], name: "index_skus_on_item_id", using: :btree
+  add_index "skus", ["skucode"], name: "index_skus_on_skucode", using: :btree
+
+  create_table "store_skucodes", force: true do |t|
+    t.integer "sku_id",    null: false
+    t.string  "storecode", null: false
+    t.string  "skucode",   null: false
+  end
+
+  add_index "store_skucodes", ["sku_id"], name: "index_store_skucodes_on_sku_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false

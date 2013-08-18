@@ -48,4 +48,7 @@ RSpec.configure do |config|
   config.after(:each) do
     DatabaseCleaner.clean
   end
+
+  # Use FactoryGirl methods in RSpecs
+  config.include FactoryGirl::Syntax::Methods
 end
