@@ -41,3 +41,37 @@ gem 'jbuilder', '~> 1.2'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+gem 'cancan'
+gem 'devise'
+gem 'figaro'
+gem 'mysql2'
+gem 'puma'
+gem 'rolify'
+gem 'simple_form', '>= 3.0.0.rc'
+gem 'slim'
+
+group :assets do
+  gem 'therubyracer', :platform=>:ruby
+end
+
+group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller', :platforms=>[:mri_19, :rbx]
+  gem 'haml-rails'
+  gem 'haml2slim'
+  gem 'html2haml'
+  gem 'quiet_assets'
+end
+
+group :development, :test do
+  gem 'factory_girl_rails'
+  gem 'rspec-rails'
+end
+
+group :test do
+  gem 'capybara'
+  gem 'database_cleaner'
+  gem 'email_spec'
+end
+
