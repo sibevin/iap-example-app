@@ -1,4 +1,7 @@
 module AppError
-    INTERNAL_ERROR_CODE = 99999
-    INTERNAL_ERROR_MSG = 'Internal Error occurs.'
+    SUCCESS_CODE = 0
+    SUCCESS_MSG = ''
+
+    INTERNAL_CODE = 99999
+    INTERNAL_MSG = 'Internal Error occurs.'
 end

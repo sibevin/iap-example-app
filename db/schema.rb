@@ -11,7 +11,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130818053318) do
+ActiveRecord::Schema.define(version: 20130827015331) do
+
+  create_table "in_app_purchases", force: true do |t|
+    t.integer  "user_id",         null: false
+    t.integer  "sku_id",          null: false
+    t.string   "store",           null: false
+    t.string   "transaction_val", null: false
+    t.text     "receipt",         null: false
+    t.string   "pinfo",           null: false
+    t.string   "dinfo",           null: false
+    t.string   "error_code",      null: false
+    t.datetime "purchased_at",    null: false
+    t.datetime "expires_at"
+    t.datetime "cancelled_at"
+    t.datetime "refunded_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "in_app_purchases", ["store", "transaction_val"], name: "index_in_app_purchases_on_store_and_transaction_val", using: :btree
+  add_index "in_app_purchases", ["user_id"], name: "index_in_app_purchases_on_user_id", using: :btree
 
   create_table "items", force: true do |t|
     t.string "name"

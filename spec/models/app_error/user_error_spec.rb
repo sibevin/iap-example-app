@@ -42,8 +42,8 @@ describe AppError::UserError do
     code = 'unknown code'
     e = AppError::UserError.new(code)
     e.status.should == :internal_error
-    e.code.should == AppError::INTERNAL_ERROR_CODE
-    e.msg.should == "#{AppError::INTERNAL_ERROR_MSG}(#{AppError::INTERNAL_ERROR_CODE})"
+    e.code.should == AppError::INTERNAL_CODE
+    e.msg.should == "#{AppError::INTERNAL_MSG}(#{AppError::INTERNAL_CODE})"
   end
 
   it "should create an exception with the given info." do

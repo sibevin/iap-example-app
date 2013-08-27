@@ -7,7 +7,7 @@ module IapStore
       store.check_tpv(iap)
     end
 
-    def is_iap_store?(storecode)
+    def support?(storecode)
       IAP_STORES.include?(storecode)
     end
 

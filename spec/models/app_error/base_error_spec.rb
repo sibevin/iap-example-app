@@ -15,4 +15,9 @@ describe AppError::Base do
     e = TestError.new(code, :masked)
     e.msg.should == 'Error occurs.(99999)'
   end
+
+  it "should raise an exception if a AppError::Base is built." do
+    code = 'unknown_code'
+    expect { AppError::Base.new(code) }.to raise_error(/implement/)
+  end
 end

@@ -1,42 +1,52 @@
 module AppError
   class IapError < Base
+    def initialize(code, msg = nil, info = {})
+      super(code, msg, info)
+      if (@status == :success || @status == :failed) && !@info[:iap_info].is_a?(Hash)
+        raise 'You should provide iap_info if status is :success or :failed'
+      end
+      if @info[:iap_info]
+        @info[:iap_info].merge!(error_code: @code)
+      end
+    end
+
     private
 
     def error_codes
       {
         20001 => {
-          :status => :failed,
-          :msg => 'Device format is incorrect.'
+          :status => :invalid_request,
+          :msg => 'Purchase information format is incorrect.'
         },
         20002 => {
-          :status => :failed,
-          :msg => 'Unknown store.'
+          :status => :invalid_request,
+          :msg => 'Device information format is incorrect.'
         },
         20003 => {
-          :status => :failed,
-          :msg => 'JB format receipt(urus).'
+          :status => :invalid_request,
+          :msg => 'Unknown store.'
         },
         20004 => {
           :status => :failed,
-          :msg => 'Unknown sku.'
+          :msg => 'JB format receipt(urus).'
         },
         20005 => {
-          :status => :failed,
-          :msg => 'An existing transaction with the wrong user.'
+          :status => :invalid_request,
+          :msg => 'Unknown sku.'
         },
         20006 => {
           :status => :failed,
+          :msg => 'An existing transaction with the wrong user.'
+        },
+        20007 => {
+          :status => :failed,
           :msg => 'An existing transaction with the wrong sku.'
         },
-        20000 => {
-          :status => :success,
-          :msg => 'A valid IAP request.'
-        },
-        20010 => {
+        20100 => {
           :status => :duplicated,
           :msg => 'A duplicated IAP request is sent.'
         },
-        20020 => {
+        20200 => {
           :status => :retry,
           :msg => 'Client should send the IAP request again.'
         }

@@ -8,10 +8,14 @@ module AppError
       if error_codes.keys.include?(code)
         @status = error_codes[code][:status]
         @msg = msg || error_codes[code][:msg]
+      elsif code == :success
+        @code = AppError::SUCCESS_CODE
+        @status = :success
+        @msg = AppError::SUCCESS_MSG
       else
-        @code = INTERNAL_ERROR_CODE
+        @code = AppError::INTERNAL_CODE
         @status = :internal_error
-        @msg = INTERNAL_ERROR_MSG
+        @msg = AppError::INTERNAL_MSG
       end
       @msg = default_masked_msg if msg == :masked
       @msg = "#{@msg}(#{@code})"
@@ -19,6 +23,11 @@ module AppError
 
     def message
       "Code:\"#{@code}\" Status:\"#{@status.to_s}\" Msg:\"#{@msg}\" #{@info.blank? ? "" : "Info:\"#{@info.inspect}\""}"
+    end
+
+    def einfo(masked = false)
+      msg = masked ? "#{default_masked_msg}(#{@code})" : @msg
+      { :status => @status, :code => @code, :msg => msg, :info => @info }
     end
 
     private
