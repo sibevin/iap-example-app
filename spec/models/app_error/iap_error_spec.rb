@@ -31,6 +31,14 @@ describe AppError::IapError do
         :status => :failed,
         :msg => 'An existing transaction with the wrong sku.'
       },
+      20008 => {
+        :status => :failed,
+        :msg => 'The transaction is not matched.'
+      },
+      20009 => {
+        :status => :failed,
+        :msg => 'The store skucode is not matched.'
+      },
       20100 => {
         :status => :duplicated,
         :msg => 'A duplicated IAP request is sent.'

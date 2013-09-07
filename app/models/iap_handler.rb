@@ -41,7 +41,7 @@ module IapHandler
           raise AppError::IapError.new(20100)
         end
       else
-        result = IapStore.check_tpv(params[:store] ,params)
+        result = IapStore.check_tpv(params[:store], sku, iap_info)
         iap_info.merge!({
           purchased_at: result[:purchased_at],
           expires_at: result[:expires_at]

@@ -5,25 +5,34 @@ describe IapHandler do
     @user = create(:user)
     @sku = create(:sku)
     @params = {
-      :pinfo => 'price=199,currency=USD,amount=1',
-      :dinfo => 'appver=1.0.0.0,platform=iPad,os=iOS,osver=6.1.1',
-      :store => 'appstore',
-      :transaction => 'transaction',
-      :receipt => 'receipt',
-      :sku => @sku.skucode
+      pinfo: 'price=199,currency=USD,amount=1',
+      dinfo: 'appver=1.0.0.0,platform=iPad,os=iOS,osver=6.1.1',
+      store: 'appstore',
+      transaction: 'transaction',
+      receipt: 'receipt',
+      sku: @sku.skucode
     }
   end
 
   describe ".check_request" do
     it "should return succ information if passed." do
       tpv_result = {
-        :purchased_at => 1.hour.ago,
-        :expires_at => 1.hour.since
+        purchased_at: 1.hour.ago,
+        expires_at: 1.hour.since
       }
       InAppPurchase.stub_chain(:where, :first).and_return(nil)
       IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
+      iap_param = {
+        user_id: @user.id,
+        store: @params[:store],
+        receipt: @params[:receipt],
+        transaction_val: @params[:transaction],
+        pinfo: @params[:pinfo],
+        dinfo: @params[:dinfo],
+        sku_id: @sku.id
+      }
       IapStore.should_receive(:check_tpv).
-        with(@params[:store], @params).
+        with(@params[:store], @sku, iap_param).
         and_return(tpv_result)
       result = IapHandler.check_request(@params, @user)
       result[:status].should == :success
@@ -41,21 +50,21 @@ describe IapHandler do
     end
 
     it "should raise a 20001 IAP error if the given pinfo format is incorrect." do
-      params = @params.merge(:pinfo => 'invalid_pinfo')
+      params = @params.merge(pinfo: 'invalid_pinfo')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20001
       result[:status].should == :invalid_request
     end
 
     it "should raise a 20002 IAP error if the given dinfo format is incorrect." do
-      params = @params.merge(:dinfo => 'invalid_dinfo')
+      params = @params.merge(dinfo: 'invalid_dinfo')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20002
       result[:status].should == :invalid_request
     end
 
     it "should raise a 20003 IAP error if the given store is invalid." do
-      params = @params.merge(:store => 'invalid_store')
+      params = @params.merge(store: 'invalid_store')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20003
       result[:status].should == :invalid_request
@@ -63,7 +72,7 @@ describe IapHandler do
 
     it "should raise a 20004 IAP error if the given transation is a JB one." do
       jb_transaction = 'com.urus.iap.30744321'
-      params = @params.merge(:transaction => jb_transaction)
+      params = @params.merge(transaction: jb_transaction)
       IapStore.should_receive(:support?).with(params[:store]).and_return(true)
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20004
@@ -79,7 +88,7 @@ describe IapHandler do
     end
 
     it "should raise a 20005 IAP error if the given sku is invalid." do
-      params = @params.merge(:sku => 'invalid_skucode')
+      params = @params.merge(sku: 'invalid_skucode')
       IapStore.should_receive(:support?).with(params[:store]).and_return(true)
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20005
@@ -89,8 +98,8 @@ describe IapHandler do
     it "should raise a 20006 IAP error if the transaction is duplicated but user is not the same." do
       user = create(:user)
       iap = create(:in_app_purchase,
-                   :user_id => user.id,
-                   :sku_id => @sku.id)
+                   user_id: user.id,
+                   sku_id: @sku.id)
       IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)
@@ -109,8 +118,8 @@ describe IapHandler do
     it "should raise a 20007 IAP error if the transaction is duplicated but sku is not the same." do
       sku = create(:sku)
       iap = create(:in_app_purchase,
-                   :user_id => @user.id,
-                   :sku_id => sku.id)
+                   user_id: @user.id,
+                   sku_id: sku.id)
       IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)
@@ -129,8 +138,8 @@ describe IapHandler do
     it "should raise a 20100 IAP error if the transaction is duplicated." do
       sku = create(:sku)
       iap = create(:in_app_purchase,
-                   :user_id => @user.id,
-                   :sku_id => @sku.id)
+                   user_id: @user.id,
+                   sku_id: @sku.id)
       IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)

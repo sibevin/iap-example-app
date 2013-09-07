@@ -27,7 +27,7 @@ module AppError
 
     def einfo(masked = false)
       msg = masked ? "#{default_masked_msg}(#{@code})" : @msg
-      { :status => @status, :code => @code, :msg => msg, :info => @info }
+      { status: @status, code: @code, msg: msg, info: @info }
     end
 
     private
@@ -37,7 +37,7 @@ module AppError
     end
 
     def error_codes
-      raise 'You should implement this method in your AppError-based class.'
+      raise 'You should implement error_codes method in your AppError-based class.'
     end
   end
 end
