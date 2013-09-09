@@ -5,12 +5,12 @@ describe IapHandler do
     @user = create(:user)
     @sku = create(:sku)
     @params = {
-      pinfo: 'price=199,currency=USD,amount=1',
-      dinfo: 'appver=1.0.0.0,platform=iPad,os=iOS,osver=6.1.1',
-      store: 'appstore',
-      transaction: 'transaction',
-      receipt: 'receipt',
-      sku: @sku.skucode
+      'pinfo' => 'price=199,currency=USD,amount=1',
+      'dinfo' => 'appver=1.0.0.0,platform=iPad,os=iOS,osver=6.1.1',
+      'store' => 'appstore',
+      'transaction' => 'transaction',
+      'receipt' => 'receipt',
+      'sku' => @sku.skucode
     }
   end
 
@@ -21,18 +21,18 @@ describe IapHandler do
         expires_at: 1.hour.since
       }
       InAppPurchase.stub_chain(:where, :first).and_return(nil)
-      IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
+      IapStore.should_receive(:support?).with(@params['store']).and_return(true)
       iap_param = {
         user_id: @user.id,
-        store: @params[:store],
-        receipt: @params[:receipt],
-        transaction_val: @params[:transaction],
-        pinfo: @params[:pinfo],
-        dinfo: @params[:dinfo],
+        store: @params['store'],
+        receipt: @params['receipt'],
+        transaction_val: @params['transaction'],
+        pinfo: @params['pinfo'],
+        dinfo: @params['dinfo'],
         sku_id: @sku.id
       }
       IapStore.should_receive(:check_tpv).
-        with(@params[:store], @sku, iap_param).
+        with(@params['store'], @sku, iap_param).
         and_return(tpv_result)
       result = IapHandler.check_request(@params, @user)
       result[:status].should == :success
@@ -40,31 +40,31 @@ describe IapHandler do
       iap_info = result[:info][:iap_info]
       iap_info[:user_id].should == @user.id
       iap_info[:sku_id].should == @sku.id
-      iap_info[:receipt] == @params[:receipt]
-      iap_info[:transaction_val] == @params[:transaction]
-      iap_info[:pinfo].should == @params[:pinfo]
-      iap_info[:dinfo].should == @params[:dinfo]
+      iap_info[:receipt] == @params['receipt']
+      iap_info[:transaction_val] == @params['transaction']
+      iap_info[:pinfo].should == @params['pinfo']
+      iap_info[:dinfo].should == @params['dinfo']
       iap_info[:error_code].should == AppError::SUCCESS_CODE
       iap_info[:purchased_at].should == tpv_result[:purchased_at]
       iap_info[:expires_at].should == tpv_result[:expires_at]
     end
 
     it "should raise a 20001 IAP error if the given pinfo format is incorrect." do
-      params = @params.merge(pinfo: 'invalid_pinfo')
+      params = @params.merge('pinfo' => 'invalid_pinfo')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20001
       result[:status].should == :invalid_request
     end
 
     it "should raise a 20002 IAP error if the given dinfo format is incorrect." do
-      params = @params.merge(dinfo: 'invalid_dinfo')
+      params = @params.merge('dinfo' => 'invalid_dinfo')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20002
       result[:status].should == :invalid_request
     end
 
     it "should raise a 20003 IAP error if the given store is invalid." do
-      params = @params.merge(store: 'invalid_store')
+      params = @params.merge('store' => 'invalid_store')
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20003
       result[:status].should == :invalid_request
@@ -72,24 +72,24 @@ describe IapHandler do
 
     it "should raise a 20004 IAP error if the given transation is a JB one." do
       jb_transaction = 'com.urus.iap.30744321'
-      params = @params.merge(transaction: jb_transaction)
-      IapStore.should_receive(:support?).with(params[:store]).and_return(true)
+      params = @params.merge('transaction' => jb_transaction)
+      IapStore.should_receive(:support?).with(params['store']).and_return(true)
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20004
       result[:status].should == :failed
       iap_info = result[:info][:iap_info]
       iap_info[:user_id].should == @user.id
       iap_info[:sku_id].should == nil
-      iap_info[:receipt] == @params[:receipt]
+      iap_info[:receipt] == @params['receipt']
       iap_info[:transaction_val] == jb_transaction
-      iap_info[:pinfo].should == @params[:pinfo]
-      iap_info[:dinfo].should == @params[:dinfo]
+      iap_info[:pinfo].should == @params['pinfo']
+      iap_info[:dinfo].should == @params['dinfo']
       iap_info[:error_code].should == 20004
     end
 
     it "should raise a 20005 IAP error if the given sku is invalid." do
-      params = @params.merge(sku: 'invalid_skucode')
-      IapStore.should_receive(:support?).with(params[:store]).and_return(true)
+      params = @params.merge('sku' => 'invalid_skucode')
+      IapStore.should_receive(:support?).with(params['store']).and_return(true)
       result = IapHandler.check_request(params, @user)
       result[:code].should == 20005
       result[:status].should == :invalid_request
@@ -100,7 +100,7 @@ describe IapHandler do
       iap = create(:in_app_purchase,
                    user_id: user.id,
                    sku_id: @sku.id)
-      IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
+      IapStore.should_receive(:support?).with(@params['store']).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)
       result[:code].should == 20006
@@ -108,10 +108,10 @@ describe IapHandler do
       iap_info = result[:info][:iap_info]
       iap_info[:user_id].should == @user.id
       iap_info[:sku_id].should == @sku.id
-      iap_info[:receipt] == @params[:receipt]
-      iap_info[:transaction_val] == @params[:transaction]
-      iap_info[:pinfo].should == @params[:pinfo]
-      iap_info[:dinfo].should == @params[:dinfo]
+      iap_info[:receipt] == @params['receipt']
+      iap_info[:transaction_val] == @params['transaction']
+      iap_info[:pinfo].should == @params['pinfo']
+      iap_info[:dinfo].should == @params['dinfo']
       iap_info[:error_code].should == 20006
     end
 
@@ -120,7 +120,7 @@ describe IapHandler do
       iap = create(:in_app_purchase,
                    user_id: @user.id,
                    sku_id: sku.id)
-      IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
+      IapStore.should_receive(:support?).with(@params['store']).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)
       result[:code].should == 20007
@@ -128,10 +128,10 @@ describe IapHandler do
       iap_info = result[:info][:iap_info]
       iap_info[:user_id].should == @user.id
       iap_info[:sku_id].should == @sku.id
-      iap_info[:receipt] == @params[:receipt]
-      iap_info[:transaction_val] == @params[:transaction]
-      iap_info[:pinfo].should == @params[:pinfo]
-      iap_info[:dinfo].should == @params[:dinfo]
+      iap_info[:receipt] == @params['receipt']
+      iap_info[:transaction_val] == @params['transaction']
+      iap_info[:pinfo].should == @params['pinfo']
+      iap_info[:dinfo].should == @params['dinfo']
       iap_info[:error_code].should == 20007
     end
 
@@ -140,7 +140,7 @@ describe IapHandler do
       iap = create(:in_app_purchase,
                    user_id: @user.id,
                    sku_id: @sku.id)
-      IapStore.should_receive(:support?).with(@params[:store]).and_return(true)
+      IapStore.should_receive(:support?).with(@params['store']).and_return(true)
       InAppPurchase.stub_chain(:where, :first).and_return(iap)
       result = IapHandler.check_request(@params, @user)
       result[:code].should == 20100

@@ -11,7 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130827015331) do
+ActiveRecord::Schema.define(version: 20130827021013) do
+
+  create_table "failed_purchases", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "sku_id"
+    t.string   "store"
+    t.text     "receipt"
+    t.string   "transaction_val"
+    t.string   "pinfo"
+    t.string   "dinfo"
+    t.string   "error_code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "in_app_purchases", force: true do |t|
     t.integer  "user_id",         null: false

@@ -3,32 +3,32 @@ module IapHandler
     def check_request(params, user, masked = false)
       iap_info = {
         user_id: user.id,
-        store: params[:store],
-        receipt: params[:receipt],
-        transaction_val: params[:transaction],
-        pinfo: params[:pinfo],
-        dinfo: params[:dinfo]
+        store: params['store'],
+        receipt: params['receipt'],
+        transaction_val: params['transaction'],
+        pinfo: params['pinfo'],
+        dinfo: params['dinfo']
       }
-      unless params[:pinfo] =~ /price=(.*),currency=(.*),amount=(.*)/
+      unless iap_info[:pinfo] =~ /price=(.*),currency=(.*),amount=(.*)/
         raise AppError::IapError.new(20001,
-          "Purchase information #{params[:pinfo]} format is incorrect")
+          "Purchase information #{iap_info[:pinfo]} format is incorrect")
       end
-      unless params[:dinfo] =~ /appver=(.*),platform=(.*),os=(.*),osver=(.*)/
+      unless iap_info[:dinfo] =~ /appver=(.*),platform=(.*),os=(.*),osver=(.*)/
         raise AppError::IapError.new(20002,
-          "Device information #{params[:dinfo]} format is incorrect")
+          "Device information #{iap_info[:dinfo]} format is incorrect")
       end
-      unless IapStore.support?(params[:store])
-        raise AppError::IapError.new(20003, "Unknown store #{params[:store]}.")
+      unless IapStore.support?(iap_info[:store])
+        raise AppError::IapError.new(20003, "Unknown store #{iap_info[:store]}.")
       end
-      if params[:transaction] =~ /urus/
+      if iap_info[:transaction_val] =~ /urus/
         raise AppError::IapError.new(20004, nil, { iap_info: iap_info })
       end
-      unless sku = Sku.find_by_skucode(params[:sku])
+      unless sku = Sku.find_by_skucode(params['sku'])
         raise AppError::IapError.new(20005)
       end
       iap_info.merge!(sku_id: sku.id)
       if iap = InAppPurchase.where(['store = ? AND transaction_val = ?',
-                                   params[:store], params[:transaction]]).first
+                                   iap_info[:store], iap_info[:transaction_val]]).first
         if iap.user_id != user.id
           raise AppError::IapError.new(20006,
             "An existing IAP with the wrong user.(#{iap.user_id} -> #{user.id})",
@@ -41,7 +41,7 @@ module IapHandler
           raise AppError::IapError.new(20100)
         end
       else
-        result = IapStore.check_tpv(params[:store], sku, iap_info)
+        result = IapStore.check_tpv(iap_info[:store], sku, iap_info)
         iap_info.merge!({
           purchased_at: result[:purchased_at],
           expires_at: result[:expires_at]

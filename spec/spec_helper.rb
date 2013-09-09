@@ -51,4 +51,10 @@ RSpec.configure do |config|
 
   # Use FactoryGirl methods in RSpecs
   config.include FactoryGirl::Syntax::Methods
+
+  # A method to setup BasicAuth in tests
+  def basic_auth(username, password)
+    @request.env["HTTP_AUTHORIZATION"] =
+      ActionController::HttpAuthentication::Basic.encode_credentials(username, password)
+  end
 end
