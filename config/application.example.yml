@@ -13,3 +13,16 @@ ADMIN_NAME: First User
 ADMIN_EMAIL: user@example.com
 ADMIN_PASSWORD: changeme
 ROLES: [admin, user, VIP]
+
+APP_NAME: your_app_name
+APP_CODE: your_app_code
+
+SKUCODE_100_COIN: skucode_for_100_coin
+SKUCODE_500_COIN: skucode_for_500_coin
+
+APPSTORE_SECRET: your_app_store_secret
+APPSTORE_SKUCODE_100_COIN: app_store_skucode_for_100_coin
+
+GOOGLEPLAY_CLIENT_ID: your_google_play_client_id
+GOOGLEPLAY_CLIENT_SECRET: your_google_play_client_secret
+GOOGLEPLAY_SKUCODE_100_COIN: skucode.for.100.coin
