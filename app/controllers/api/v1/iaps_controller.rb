@@ -1,5 +1,6 @@
 class Api::V1::IapsController < ApplicationController
 	before_filter :do_api_basic_auth
+  protect_from_forgery except: :create
   respond_to :json
 
   INVALID_RETURN_CODE = :unprocessable_entity
