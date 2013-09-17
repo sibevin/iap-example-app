@@ -87,6 +87,11 @@ module IapStore
             'AppStore: No purchase_date or transaction_id in returned result.',
             { iap_info: iap_info })
         end
+        # block the JB response
+        if receipt_hash['product_id'] =~ /zeptolab/
+          raise AppError::IapAppStoreError.new(21901,nil,
+            { iap_info: iap_info })
+        end
         # check transaction
         transaction = receipt_hash['transaction_id']
         if iap_info[:transaction_val] != transaction

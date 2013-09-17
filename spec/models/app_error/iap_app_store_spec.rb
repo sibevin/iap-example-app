@@ -35,6 +35,10 @@ describe AppError::IapAppStoreError do
         :status => :failed,
         :msg => 'This receipt is a production receipt, but it was sent to the sandbox service for verification.'
       },
+      21901 => {
+        :status => :failed,
+        :msg => 'AppStore server: The store server return a invalid JB response.'
+      },
       21991 => {
         :status => :failed,
         :msg => 'AppStore server: The store server return an unknown format response.'

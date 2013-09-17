@@ -136,6 +136,40 @@ describe IapStore::AppStore do
       end
     end
 
+    it "should raise a 21901 error if the given product_id is a JB one." do
+      fake_res = {
+        'receipt' => {
+          'original_purchase_date_pst' => '2013-08-28 16:42:32 America/Los_Angeles',
+          'unique_identifier' => 'a25775dbe876acc50cdf07e0e84396f7a73807fe',
+          'original_transaction_id' => transaction,
+          'bvrs' => '1.0.0.0',
+          'app_item_id' => '178100801',
+          'transaction_id' => transaction,
+          'quantity' => '1',
+          'unique_vendor_identifier' => '35392306-0F69-59E6-4D37-D4BDE5F16E6A',
+          'product_id' => 'com.zeptolab.ctrbonus.superpower1',
+          'item_id' => storeskucode,
+          'version_external_identifier' => '66851710',
+          'bid' => 'com.your.app.identity',
+          'purchase_date_ms' => '1377733352209',
+          'purchase_date' => purchase_date,
+          'purchase_date_pst' => '2013-08-28 16:42:32 America/Los_Angeles',
+          'original_purchase_date' => '2013-08-28 23:42:32 Etc/GMT',
+          'original_purchase_date_ms' => '1377733352209'
+        },
+        'status' => 0
+      }
+      res = double(Object)
+      res.stub(:parsed_response)
+      HTTParty.should_receive(:post).with(formal_url, body: @sent_data).and_return(res)
+      JSON.should_receive(:parse).and_return(fake_res)
+      expect { result = IapStore::AppStore.new.check_tpv(sku, @iap_info) }.to raise_error { |error|
+        error.should be_a(AppError::IapAppStoreError)
+        error.einfo[:code].should == 21901
+        error.einfo[:status].should == :failed
+      }
+    end
+
     it "should raise a 20008 error if the given transaction is not matched." do
       iap_info = @iap_info.merge(transaction_val: 'invalid_transaction')
       res = double(Object)
